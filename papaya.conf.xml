@@ -1,0 +1,100 @@
+<config>
+    <audiosettings>
+	    <samplerate>44100</samplerate>
+        <channels>2</channels>
+	</audiosettings>
+	<videosettings>
+	    <framerate>25/1</framerate>
+		<width>384</width>
+		<height>288</height>
+	</videosettings>
+	<x-grab>
+		<!-- The following settings specify the area of the
+		screen that must be grabbed and sent to the icecast
+		server. Other settings are set via the videosettings
+		parameters -->
+	    <startx>0</startx>
+	    <starty>0</starty>
+	    <endx>570</endx>
+	    <endy>320</endy>
+	</x-grab>
+
+    <!-- server type can be one of: 
+        "icecast" for an icecast2 server
+        "rtp" for unicast or multicast transmission
+    -->
+    <server-type>icecast</server-type>
+	<ice-0>
+		<!-- 
+            icecast: the server running the icecast server
+            rtp: a unicast or multicast address
+        -->
+        <server>stream.teknusi.org</server>
+		<port>8000</port>
+		<!--format
+		    possible values are:
+		    - "mp3" to stream in mp3 format
+		    - "ogg" to stream in ogg-vorbis format
+		-->
+		<format>mp3</format>
+		<username>source</username>
+		<password>hackme</password>
+		<mountpoint>try</mountpoint>
+		<streamname>trystream</streamname>
+		<description>Stream some media</description>
+		<genre>Talk</genre>
+	</ice-0>
+    <rtp-0>
+        <host>239.255.12.42</host>
+        <port>4951</port>
+        <video-format>h264</video-format>
+        <audio-format>mp3</audio-format>
+    </rtp-0>
+	<mp3-encoder>
+		<bitrate>56</bitrate>
+		<!-- quality is in the range 0-9
+		  	0 best
+		  	9 worst 
+		-->
+		<quality>8</quality>
+	</mp3-encoder>
+
+	<vorbis-encoder>
+		<!-- type can be "bitrate" or "quality"-->
+		<type>quality</type>
+		<bitrate>56</bitrate>
+		<!-- quality is in the range [-0,1 ; 1] -->
+		<quality>0,3</quality>
+	</vorbis-encoder>
+	<theora-encoder>
+        <!-- type can be "bitrate" or "quality" -->
+        <type>bitrate</type>
+		<bitrate>256</bitrate>
+		<quality>10</quality>
+	</theora-encoder>
+	<h264-encoder>
+        <!-- type can be "bitrate", "quality" or "quantizer" -->
+        <type>bitrate</type>
+		<bitrate>384</bitrate>
+		<!-- needed for both quality and quantizer, range 0-50 -->
+        <quality>48</quality>
+	</h264-encoder>
+	<live-video>
+		<device>/dev/video0</device>
+	</live-video>
+	<live-audio>
+		<!-- you can choose between alsa and pulse 
+		     device -->
+		<alsa>
+		    <alsa-device>default</alsa-device>
+		    <buffer-utime>500000</buffer-utime>
+		    <latency-time>10000</latency-time>
+		</alsa>
+		<pulse>
+            <server>localhost</server>
+			<pulse-device>default</pulse-device>
+			<buffer-time>500000</buffer-time>
+			<latency-time>10000</latency-time>
+		</pulse>
+	</live-audio>
+</config>

@@ -1,0 +1,12 @@
+Papaya can be compiled and installed in few steps. From your favourite
+shell type:
+
+./bootstrap.sh
+./configure 
+make 
+make install
+
+The default install prefix is /usr/local/ (thus the binary will be
+installed in /usr/local/bin). 
+You will need to supply a valid configuration file. Just copy
+papaya.conf.xml shipped with the source, edit it and live with it.

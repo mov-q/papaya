@@ -1,0 +1,7 @@
+Some stuff that must be done:
+* better checking of command parameters
+* multi-server support
+* complete video-mixing functionalities
+* conf_* functions return values must be checked
+* fix bugs : )
+* lots of other things

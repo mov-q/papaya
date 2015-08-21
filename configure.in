@@ -1,0 +1,101 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+
+AC_INIT([papaya], [0.1svn], [marco@teknusi.org])
+AC_CANONICAL_HOST
+
+AM_INIT_AUTOMAKE([1.9 foreign])
+
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS(string.h stdlib.h)
+
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(memset memcmp memchr memcpy memmove bcopy bzero bcmp)
+AC_CHECK_FUNCS(strlen strcpy strcat strncpy strcmp strncmp)
+AC_CHECK_FUNCS(strchr strrchr vsprintf vsnprintf _vsnprintf getpagesize)
+
+
+dnl check for readline
+AC_SEARCH_LIBS(readline, [readline edit], [AC_DEFINE(HAVE_READLINE)],
+               [AC_MSG_ERROR("libreadline is required!")])
+
+AC_MSG_CHECKING(if debug is enabled)
+AC_ARG_ENABLE(debug,
+[  --enable-debug    Turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac],[debug=false])
+if test x$debug = xtrue
+then
+	AC_DEFINE(_DEBUG_)
+fi
+AC_MSG_RESULT($debug);
+#AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
+
+PKG_PROG_PKG_CONFIG
+
+PKG_CHECK_MODULES(glib,glib-2.0 >= 2.16.0)
+
+PKG_CHECK_MODULES(GStreamer, gstreamer-0.10 >= 0.10.16,
+	HAVE_GST_BASE="yes", HAVE_GST_BASE="no")
+if test "x$HAVE_GST_BASE" = "xno";then
+   AC_MSG_ERROR(no GStreamer Base Libs found)
+fi
+
+PKG_CHECK_MODULES(gstreamer_plugins_base, gstreamer-plugins-base-0.10 >= 0.10.16,
+	HAVE_GST_PLUGINS_BASE="yes", HAVE_GST_PLUGINS_BASE="no")
+if test "x$HAVE_GST_PLUGINS_BASE" = "xno";then
+   AC_MSG_ERROR(no GStreamer Plugins Base Libs found)
+fi
+
+dnl Check for required plugins
+gst010_toolsdir=`$PKG_CONFIG --variable=toolsdir gstreamer-0.10`
+gst010_inspect="$gst010_toolsdir/gst-inspect-0.10"
+
+dnl Give error and exit if we don't have the gst_inspect tool
+AC_MSG_CHECKING([GStreamer 0.10 inspection tool])
+if test -r "$gst010_inspect"; then
+	AC_MSG_RESULT([yes])
+else
+	AC_MSG_RESULT([no])
+	AC_MSG_ERROR([
+		Cannot find required GStreamer-0.10 tool 'gst-inspect-0.10'.
+		It should be part of gstreamer-0_10-utils. Please install it.
+	])
+fi
+GST_PLUGINS_REQ="adder alsasrc alsasink audioconvert audiorate audioresample \
+		 audiotestsrc capsfilter decodebin2 ffmpegcolorspace \
+		 lame oggmux queue2 souphttpsrc tee textoverlay \
+		 theoraenc v4lsrc v4l2src videobox videorate videoscale \
+		 vorbisenc ximagesrc" 
+dnl Check for elements we need
+for base_element in $GST_PLUGINS_REQ
+do
+	AC_MSG_CHECKING([GStreamer 0.10 $base_element plugin])
+	if $gst010_inspect $base_element >/dev/null 2>/dev/null; then
+		AC_MSG_RESULT([yes])
+	else
+		AC_MSG_RESULT([no])
+		AC_MSG_ERROR([
+			Cannot find required GStreamer-0.10 plugin '$base_element'.
+			Please install plugins from good, ugly and bad
+			distribution
+		])
+	fi
+done
+
+#PKG_CHECK_MODULES(gtk, gtk+-2.0 >= 2.12.0)
+CFLAGS="$CFLAGS $glib_CFLAGS $GStreamer_CFLAGS $gtk_CFLAGS"
+CPPFLAGS="$CPPFLAGS $glib_CFLAGS $GStreamer_CFLAGS $gtk_CFLAGS"
+LDFLAGS="$LDFLAGS $glib_LIBS $GStreamer_LIBS $gtk_LIBS"
+
+AC_CONFIG_FILES([Makefile src/Makefile])
+AC_OUTPUT
